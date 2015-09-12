@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 
@@ -9,17 +9,23 @@ public class ChallengeManager : MonoBehaviour {
 	public GameObject m_feedbackPanel;
 	public GameObject m_scoreText;
 
+	public GameObject m_feedbackSubtitle;
+	public GameObject m_feedbackImageCorrect;
+	public GameObject m_feedbackImageWrong;
+
+	public TextAsset m_questionText;
+
 	private IChallengeClient m_challengeClient;
 	private LevelManager m_levelManager;
 
+	const int MAX_LEVEL_INDEX = 2;
 	private int m_challengeIndex;
 	private int m_challengeLevel;
 	private int m_currentSelectedIndex;
 
 	// Use this for initialization
 	void Start () {
-//		m_challengeClient = new DummyChallengeClient ();
-		m_challengeClient = new CsvChallengeClient ();
+		m_challengeClient = new TextChallengeClient (m_questionText);
 		m_challengeLevel = 1;	
 		m_challengeIndex = 0;
 		m_levelManager = FindObjectOfType<LevelManager> ();
@@ -41,9 +47,7 @@ public class ChallengeManager : MonoBehaviour {
 		m_scoreText.GetComponent<Text> ().text = "score: " + PlayerState.CurrentScore;
 	}
 
-	private void incrementScore() {
-		PlayerState.CurrentScore += 10;
-	}
+
 
 	private void setQuestionText(string text) {
 		m_questionPanel.GetComponentInChildren<Text> ().text = text;
@@ -63,7 +67,7 @@ public class ChallengeManager : MonoBehaviour {
 		m_currentSelectedIndex = answerIndex;
 		Challenge currentChallenge = m_challengeClient.GetQuestion(m_challengeLevel, m_challengeIndex);
 		if (currentChallenge.AnswerIndex == answerIndex) {
-			incrementScore();
+			PlayerState.IncrementScore();
 			updateUI ();
 			ShowCorrectFeedback();
 		} else {
@@ -78,25 +82,18 @@ public class ChallengeManager : MonoBehaviour {
 
 	private void ShowCorrectFeedback() {
 		SetFeedbackPanelVisibility (true);
-		foreach (Text text in m_feedbackPanel.GetComponentsInChildren<Text>()) {
-			if (text.name == "FeedbackTitle") {
-				text.text = "правилно!";
-			} else if (text.name == "FeedbackSubtitle") {
-				text.text = "";
-			}
-		}
+		m_feedbackSubtitle.GetComponent<Text> ().text = "";
+		m_feedbackImageCorrect.SetActive (true);
+		m_feedbackImageWrong.SetActive (false);
 	}
 	
 	private void ShowIncorrectFeedback() {
 		SetFeedbackPanelVisibility (true);
-		foreach (Text text in m_feedbackPanel.GetComponentsInChildren<Text>()) {
-			if (text.name == "FeedbackTitle") {
-				text.text = "ошибка";
-			} else if (text.name == "FeedbackSubtitle" ) {
-				Challenge currentChallenge = m_challengeClient.GetQuestion(m_challengeLevel, m_challengeIndex);
-				text.text = currentChallenge.Question + ": " + currentChallenge.AnswerOptions[currentChallenge.AnswerIndex];
-			}
-		}
+		m_feedbackImageCorrect.SetActive (false);
+		m_feedbackImageWrong.SetActive (true);
+
+		Challenge currentChallenge = m_challengeClient.GetQuestion(m_challengeLevel, m_challengeIndex);
+		m_feedbackSubtitle.GetComponent<Text> ().text = currentChallenge.Question + ": " + currentChallenge.AnswerOptions[currentChallenge.AnswerIndex];
 	}
 	
 	public void OnFeedbacNextSelected() {
@@ -105,7 +102,7 @@ public class ChallengeManager : MonoBehaviour {
 		if (currentChallenge.AnswerIndex == m_currentSelectedIndex) {
 			m_challengeIndex++;
 			if (m_challengeIndex > m_challengeClient.GetCountQuestionsForLevel (m_challengeLevel)) {
-				m_levelManager.LoadLevel (Level.Win);
+				IncreaseLevel();
 			} else {
 				updateUI ();
 				SetFeedbackPanelVisibility (false);
@@ -113,5 +110,18 @@ public class ChallengeManager : MonoBehaviour {
 		} else {
 			m_levelManager.LoadLevel (Level.Lose);
 		}
+	}
+
+	private void IncreaseLevel() {
+		// TODO: Consider using a different scene for a different level
+		m_challengeLevel++;
+		m_challengeIndex = 0;
+		if (m_challengeIndex > MAX_LEVEL_INDEX) {
+			m_levelManager.LoadLevel (Level.Win);
+		} else {
+			updateUI ();
+			SetFeedbackPanelVisibility (false);
+		}
+
 	}
 }

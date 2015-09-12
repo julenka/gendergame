@@ -41,6 +41,10 @@ public static class PlayerState {
 		}
 	}
 
+	public static void IncrementScore() {
+		PlayerState.CurrentScore += 10;
+	}
+	
 	public static void UpdateStreak() {
 		if (CurrentScore > 50) {
 			DateTime now = DateTime.Now;
@@ -65,7 +69,6 @@ public static class PlayerState {
 			}
 
 		}
-
 	}
 
 }

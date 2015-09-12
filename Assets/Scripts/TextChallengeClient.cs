@@ -2,18 +2,13 @@ using System.IO;
 using UnityEngine;
 using System.Collections.Generic;
 
-public class CsvChallengeClient : IChallengeClient {
-	/// <summary>
-	/// Location, relative to game data folder, of data file
-	/// </summary>
-	const string CSV_DATA_LOCATION = "/вопроси-в1.csv";
-
+public class TextChallengeClient : IChallengeClient {
 	Dictionary<int,List<Challenge>> m_levels;
 
-	public CsvChallengeClient() {
+	public TextChallengeClient(TextAsset text) {
 		m_levels = new Dictionary<int, List<Challenge>> ();
 		// parse the questions
-		string[] lines = File.ReadAllLines (Application.dataPath + CSV_DATA_LOCATION);
+		string[] lines = text.text.Split (new char[]{'\n'});
 		for (int i = 1; i < lines.Length; i++) {
 			string line = lines[i];
 			line = line.Trim();
