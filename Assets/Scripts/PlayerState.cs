@@ -46,7 +46,7 @@ public static class PlayerState {
 	}
 	
 	public static void UpdateStreak() {
-		if (CurrentScore > 50) {
+		if (CurrentScore >= 50) {
 			DateTime now = DateTime.Now;
 			DateTime epoch = DateTime.FromBinary (0);
 			string lastUpdateStr = PlayerPrefs.GetString (LASTPLAYED_KEY, defaultValue: epoch.ToString());

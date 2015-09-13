@@ -101,7 +101,7 @@ public class ChallengeManager : MonoBehaviour {
 		Challenge currentChallenge = m_challengeClient.GetQuestion(m_challengeLevel, m_challengeIndex);
 		if (currentChallenge.AnswerIndex == m_currentSelectedIndex) {
 			m_challengeIndex++;
-			if (m_challengeIndex > m_challengeClient.GetCountQuestionsForLevel (m_challengeLevel)) {
+			if (m_challengeIndex >= m_challengeClient.GetCountQuestionsForLevel (m_challengeLevel)) {
 				IncreaseLevel();
 			} else {
 				updateUI ();
@@ -116,7 +116,7 @@ public class ChallengeManager : MonoBehaviour {
 		// TODO: Consider using a different scene for a different level
 		m_challengeLevel++;
 		m_challengeIndex = 0;
-		if (m_challengeIndex > MAX_LEVEL_INDEX) {
+		if (m_challengeLevel > MAX_LEVEL_INDEX) {
 			m_levelManager.LoadLevel (Level.Win);
 		} else {
 			updateUI ();
